@@ -5,6 +5,7 @@ TweetSearch is an Android app to search and explore twitter by queries for recen
 
 
 ![Screenshot](https://raw.github.com/EldarRonen/TweetSearch/master/assets/screenshot_1.png)
+![Screenshot](https://raw.github.com/EldarRonen/TweetSearch/master/assets/screenshot_2.png)
 
 ##Features
 
