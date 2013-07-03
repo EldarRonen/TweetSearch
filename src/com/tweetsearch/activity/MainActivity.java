@@ -32,14 +32,10 @@ import com.tweetsearch.image.ImageDownloader;
 import com.tweetsearch.twitter.Tweet;
 import com.tweetsearch.twitter.TwitterAPI;
 import com.tweetsearch.twitter.TwitterSearchResult;
-import com.tweetsearch.widget.PullToRefreshListView;
-import com.tweetsearch.widget.PullToRefreshListView.OnRefreshListener;
 
 public class MainActivity extends ListActivity 
 {
 	public static final String EXTRA_TWEET = "com.tweetsearch.MainActivity.TWEET";
-	
-	private TwitterSearchResult lastSearchResult;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,15 +43,6 @@ public class MainActivity extends ListActivity
 		setContentView(R.layout.activity_main);
 		
 		getActionBar().setIcon(R.drawable.twitter_logo);
-		
-		// Set a listener to be invoked when the list should be refreshed.
-		((PullToRefreshListView) getListView()).setOnRefreshListener(new OnRefreshListener() {
-		    @Override
-		    public void onRefresh() {
-		        // Do work to refresh the list here.
-		        new GetDataTask().execute();
-		    }
-		});
 				
 		handleIntent(getIntent());
 	}
@@ -159,8 +146,6 @@ public class MainActivity extends ListActivity
 				// TODO: issue response to user
 				return;
 			}
-			
-			lastSearchResult = result;
 
 			SearchResultAdapter adapter = new SearchResultAdapter(activity, R.layout.search_result, result.getTweets());
 			setListAdapter(adapter);
@@ -203,22 +188,6 @@ public class MainActivity extends ListActivity
 			imageDownloader.download(tweet.getUser().getProfileImageURL(), image);
 
 			return view;
-		}
-	}
-	
-	private class GetDataTask extends AsyncTask<Void, Void, String[]> {
-	    @Override
-	    protected void onPostExecute(String[] result) {
-	        //mListItems.addFirst("Added after refresh...");
-	        // Call onRefreshComplete when the list has been refreshed.
-	        ((PullToRefreshListView) getListView()).onRefreshComplete();
-	        super.onPostExecute(result);
-	    }
-
-		@Override
-		protected String[] doInBackground(Void... arg0) {
-			// TODO Auto-generated method stub
-			return null;
 		}
 	}
 }
