@@ -8,11 +8,13 @@ public class Tweet implements Parcelable
 	private User   user;
 	private String text;
 	private String createdAt;
+	private String photoURL;
 	
 	private Tweet(TweetBuilder builder) {
 		user = builder.user;
 		text = builder.text;
 		createdAt = builder.createdAt;
+		photoURL = builder.photoURL;
 	}
 	
 	public User getUser() {
@@ -27,6 +29,10 @@ public class Tweet implements Parcelable
 		return createdAt;
 	}
 	
+	public String getPhotoURL() {
+		return photoURL;
+	}
+	
 	public Tweet(Parcel in) {
 		readFromParcel(in);
 	}
@@ -35,6 +41,7 @@ public class Tweet implements Parcelable
 		user = in.readParcelable(User.class.getClassLoader());
 		text = in.readString();
 		createdAt = in.readString();
+		photoURL = in.readString();
 	}
 
 	@Override
@@ -42,6 +49,7 @@ public class Tweet implements Parcelable
 		dest.writeParcelable(user, flags);
 		dest.writeString(text);
 		dest.writeString(createdAt);
+		dest.writeString(photoURL);
 	}
 	
 	@Override
@@ -67,6 +75,7 @@ public class Tweet implements Parcelable
 		private User   user;
 		private String text;
 		private String createdAt;
+		private String photoURL;
 		
 		public TweetBuilder user(User user) {
 			this.user = user;
@@ -80,6 +89,11 @@ public class Tweet implements Parcelable
 		
 		public TweetBuilder createdAt(String createdAt) {
 			this.createdAt = createdAt;
+			return this;
+		}
+		
+		public TweetBuilder photoURL(String url) {
+			photoURL = url + ":medium";
 			return this;
 		}
 		

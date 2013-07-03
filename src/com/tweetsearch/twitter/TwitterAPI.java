@@ -34,7 +34,7 @@ public class TwitterAPI
 	//private static final String API_AUTHORIZE_URL = "https://api.twitter.com/oauth/authorize";
 	private static final String API_OAUTH2_TOKEN_URL = "https://api.twitter.com/oauth2/token";
 
-	private static final String TWITTER_API_URL = "https://api.twitter.com/1.1/search/tweets.json?include_entities=false&q=";
+	private static final String TWITTER_API_URL = "https://api.twitter.com/1.1/search/tweets.json";
 	private static final String LOG_TAG = "TwitterAPI";
 
 
@@ -49,7 +49,7 @@ public class TwitterAPI
 
 		try {
 			query = URLEncoder.encode(query, "utf-8");
-			URL url = new URL(TWITTER_API_URL + query);
+			URL url = new URL(TWITTER_API_URL + "?q=" + query);
 
 			HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 			conn.setReadTimeout(10000 /* milliseconds */);
@@ -163,6 +163,9 @@ public class TwitterAPI
 			else if (name.equals("user")) {
 				builder.user(readUser(reader));
 			}
+			else if (name.equals("entities")) {
+				readEntities(reader, builder);
+			}
 			else {
 				reader.skipValue();
 			}
@@ -170,6 +173,60 @@ public class TwitterAPI
 
 		reader.endObject();
 		return builder.build();
+	}
+
+	private static void readEntities(JsonReader reader, TweetBuilder builder) throws IOException {
+		reader.beginObject();			
+
+		while(reader.hasNext()) {
+			String name = reader.nextName();
+			if (name.equals("media")) {
+				readMediaEnteties(reader, builder);
+			}
+			else {
+				reader.skipValue();
+			}
+		}
+		
+		reader.endObject();
+	}
+	
+	private static void readMediaEnteties(JsonReader reader, TweetBuilder builder) throws IOException {
+		reader.beginArray();
+		
+		while(reader.hasNext()) {
+			readMediaEntetie(reader, builder);
+		}
+		reader.endArray();
+	}
+
+	private static void readMediaEntetie(JsonReader reader, TweetBuilder builder) throws IOException {
+		String mediaURL = null;
+		String mediaType = null;
+		
+		reader.beginObject();			
+
+		while(reader.hasNext()) {
+			String name = reader.nextName();
+			if (name.equals("media_url")) {
+				mediaURL = reader.nextString();
+			}
+			else if (name.equals("type")) {
+				mediaType = reader.nextString();
+			}
+			else {
+				reader.skipValue();
+			}
+		}
+		
+		if ("photo".equals(mediaType)) {
+			builder.photoURL(mediaURL);
+		}
+		else if (mediaType != null) {
+			Log.w(LOG_TAG, "unsupported media type: " + mediaType + ". url: " + mediaURL);
+		}
+		
+		reader.endObject();
 	}
 
 	private static User readUser(JsonReader reader) throws IOException {

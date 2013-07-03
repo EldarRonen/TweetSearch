@@ -28,19 +28,18 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.tweetsearch.R;
-import com.tweetsearch.R.drawable;
-import com.tweetsearch.R.id;
-import com.tweetsearch.R.layout;
-import com.tweetsearch.R.menu;
-import com.tweetsearch.R.string;
 import com.tweetsearch.image.ImageDownloader;
 import com.tweetsearch.twitter.Tweet;
 import com.tweetsearch.twitter.TwitterAPI;
 import com.tweetsearch.twitter.TwitterSearchResult;
+import com.tweetsearch.widget.PullToRefreshListView;
+import com.tweetsearch.widget.PullToRefreshListView.OnRefreshListener;
 
 public class MainActivity extends ListActivity 
 {
 	public static final String EXTRA_TWEET = "com.tweetsearch.MainActivity.TWEET";
+	
+	private TwitterSearchResult lastSearchResult;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +47,15 @@ public class MainActivity extends ListActivity
 		setContentView(R.layout.activity_main);
 		
 		getActionBar().setIcon(R.drawable.twitter_logo);
+		
+		// Set a listener to be invoked when the list should be refreshed.
+		((PullToRefreshListView) getListView()).setOnRefreshListener(new OnRefreshListener() {
+		    @Override
+		    public void onRefresh() {
+		        // Do work to refresh the list here.
+		        new GetDataTask().execute();
+		    }
+		});
 				
 		handleIntent(getIntent());
 	}
@@ -111,8 +119,8 @@ public class MainActivity extends ListActivity
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
 		builder.setMessage(R.string.alert_network_message)
-		.setTitle(R.string.alert_network_title)
-		.setIcon(R.drawable.alerts_and_states_error);
+			   .setTitle(R.string.alert_network_title)
+		       .setIcon(R.drawable.alerts_and_states_error);
 
 		AlertDialog dialog = builder.create();
 		dialog.show();
@@ -151,10 +159,10 @@ public class MainActivity extends ListActivity
 				// TODO: issue response to user
 				return;
 			}
+			
+			lastSearchResult = result;
 
-			List<Tweet> tweets = result.getTweets();
-
-			SearchResultAdapter adapter = new SearchResultAdapter(activity, R.layout.search_result, tweets);
+			SearchResultAdapter adapter = new SearchResultAdapter(activity, R.layout.search_result, result.getTweets());
 			setListAdapter(adapter);
 			
 			// HIDE THE SPINNER AFTER LOADING FEEDS
@@ -195,6 +203,22 @@ public class MainActivity extends ListActivity
 			imageDownloader.download(tweet.getUser().getProfileImageURL(), image);
 
 			return view;
+		}
+	}
+	
+	private class GetDataTask extends AsyncTask<Void, Void, String[]> {
+	    @Override
+	    protected void onPostExecute(String[] result) {
+	        //mListItems.addFirst("Added after refresh...");
+	        // Call onRefreshComplete when the list has been refreshed.
+	        ((PullToRefreshListView) getListView()).onRefreshComplete();
+	        super.onPostExecute(result);
+	    }
+
+		@Override
+		protected String[] doInBackground(Void... arg0) {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 }

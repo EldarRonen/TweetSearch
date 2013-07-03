@@ -9,6 +9,7 @@ import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,6 +22,7 @@ public class TweetActivity extends Activity
 	private static final String LOG_TAG = "TweetActivity";
 	
 	private ImageDownloader imageDownloader;
+	private ImageDownloader tweetPhotoDownloader;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +36,9 @@ public class TweetActivity extends Activity
 		// initialize profile image downLoader
 		Bitmap placeHolder = BitmapFactory.decodeResource(getResources(), R.drawable.twitter_bird_dark);
 		imageDownloader = new ImageDownloader(this, placeHolder);
+		
+		Bitmap photoPlaceHolder = BitmapFactory.decodeResource(getResources(), R.drawable.content_picture);
+		tweetPhotoDownloader = new ImageDownloader(this,  photoPlaceHolder);
 		
 		handleIntent(getIntent());
 	}
@@ -63,6 +68,12 @@ public class TweetActivity extends Activity
 
 		ImageView image = (ImageView) findViewById(R.id.profile_image);
 		imageDownloader.download(tweet.getUser().getProfileImageURL(), image);
+		
+		if (tweet.getPhotoURL() != null) {
+			ImageView photoView = (ImageView) findViewById(R.id.media_image);
+			photoView.setVisibility(View.VISIBLE);
+			tweetPhotoDownloader.download(tweet.getPhotoURL(), photoView);
+		}
 	}
 
 	/**
